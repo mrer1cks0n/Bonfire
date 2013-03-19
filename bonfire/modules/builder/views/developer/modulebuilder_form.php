@@ -157,7 +157,7 @@ a.mb_show_advanced_rules:hover {
 			<div class="control-group mb_advanced <?php echo form_has_error('table_as_field_prefix') ? 'error' : ''; ?>">
 				<label for="table_as_field_prefix" class="control-label block"><?php echo lang('mb_form_table_as_field_prefix'); ?></label>
 				<div class="controls">
-					<input name="table_as_field_prefix" id="table_as_field_prefix" type="checkbox" value="<?php echo set_value("table_as_field_prefix", 1); ?>" checked />
+					<input name="table_as_field_prefix" id="table_as_field_prefix" type="checkbox" value="<?php echo set_value("table_as_field_prefix", 1); ?>" />
 								<span class="help-inline"><?php echo form_error('table_as_field_prefix'); ?></span>
 				</div>
 			</div>
@@ -188,7 +188,7 @@ a.mb_show_advanced_rules:hover {
 				<label for="use_soft_deletes" class="control-label block"><?php echo lang('mb_form_soft_deletes'); ?></label>
 				<div class="controls">
 					<?php
-						$truefalse = array('false' => 'False', 'true' => 'True');
+						$truefalse = array('true' => 'True', 'false' => 'False');
 					?>
 					<select name="use_soft_deletes" id="use_soft_deletes">
 						<?php foreach($truefalse as $val => $label):?>
