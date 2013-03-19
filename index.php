@@ -13,14 +13,14 @@
 // public path for security, or to simply create a new little text file
 // for when we're developing on it, but want to easily install later on.
 //
-if (!file_exists('./install/installed.txt'))
+if (!file_exists('public/install/installed.txt'))
 {
 	// Auto $base_url copied from codeigniter/core/Config.php
 	$base_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off' ? 'https' : 'http';
 	$base_url .= '://'. $_SERVER['HTTP_HOST'];
 	$base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
 
-	header("Location: {$base_url}install/index.php");
+	header("Location: {$base_url}public/install/index.php");
 	exit;
 }
 
@@ -95,7 +95,7 @@ if (!file_exists('./install/installed.txt'))
  * Simply change the first "path" variable, and the individual paths
  * will be set accordingly.
  */
-	$path = "..";
+	$path = dirname(__FILE__);
 
 
 	$bonfire_path = "${path}/bonfire";

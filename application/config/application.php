@@ -73,7 +73,7 @@ $config['template.site_path']	= FCPATH;
 | one folder path at all times, to serve as the fall-back for when
 | a theme isn't found. Paths are relative to the FCPATH.
 */
-$config['template.theme_paths'] = array('themes');
+$config['template.theme_paths'] = array('public/themes');
 
 /*
 |--------------------------------------------------------------------

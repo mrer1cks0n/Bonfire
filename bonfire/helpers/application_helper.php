@@ -637,3 +637,43 @@ if ( !function_exists('list_contexts') )
         return $contexts;
     }
 }
+
+//--------------------------------------------------------------------
+if (!function_exists('public_url')) {
+	/**
+	 * Public URL
+	 * 
+	 *
+	 * @access	public
+	 * @param string
+	 * @return	string
+	 */
+	if ( ! function_exists('public_url'))
+	{
+		function public_url()
+		{
+			$CI =& get_instance();
+			return $CI->config->base_url("public")."/";
+		}
+	}
+}
+
+//--------------------------------------------------------------------
+if (!function_exists('assets_url')) {
+	/**
+	 * Public URL
+	 * 
+	 *
+	 * @access	public
+	 * @param string
+	 * @return	string
+	 */
+	if ( ! function_exists('assets_url'))
+	{
+		function assets_url()
+		{
+			$CI =& get_instance();
+			return $CI->config->base_url("public/assets")."/";
+		}
+	}
+}

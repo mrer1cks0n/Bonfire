@@ -57,7 +57,7 @@ class Assets
 	 *
 	 * @var string
 	 */
-	private static $asset_base		= 'assets/';
+	private static $asset_base		= 'public/assets/';
 
 	/**
 	 * The names of the folders for the various assets.
