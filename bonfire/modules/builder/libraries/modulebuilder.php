@@ -115,15 +115,15 @@ class Modulebuilder
      *
      * @return array An array with the content for the generated files
      */
-    public function build_files($field_total, $module_name, $contexts, $action_names, $primary_key_field, $db_required, $form_error_delimiters, $module_description, $role_id, $table_name, $table_as_field_prefix) {
+    public function build_files($module_settings) {
     {
         $this->CI->load->helper('inflector');
 
         // filenames
         $this->files = array(
-                            'model' => singular($module_name).'_model',
-                            'migration'  => 'migration',
-                            );
+            'model' => $module_settings['module_name_singular'].'_model',
+            'migration'  => 'migration',
+        );
 
         $content = array();
         $content['acl_migration'] = FALSE;
@@ -135,57 +135,57 @@ class Modulebuilder
         $content['views'] = FALSE;
 
         // if the db is required then there is at least one field, the primary ID, so make $field_total at least 1
-        $field_total = (empty($field_total) && $db_required != '') ? 1 : $field_total;
+        $module_settings['field_total'] = (empty($module_settings['field_total']) && $module_settings['db_required'] != '') ? 1 : $module_settings['field_total'];
 
         // build the files
-        $module_file_name = strtolower(preg_replace("/[ -]/", "_", $module_name));
-        foreach( $contexts as $key => $context_name) {
+        $module_settings['module_file_name'] = strtolower(preg_replace("/[ -]/", "_", $module_settings['module_name']));
+        foreach( $module_settings['contexts'] as $key => $context_name) {
             // controller
             $public_context = FALSE;
             if($context_name == 'public') {
-                $context_name = $module_file_name;
+                $context_name = $module_settings['module_file_name'];
                 $public_context = TRUE;
             }
-            $content['controllers'][$context_name] = $this->build_controller($field_total, $module_name, $context_name, $action_names, $primary_key_field, $db_required, $form_error_delimiters, $table_name, $table_as_field_prefix);
+            $content['controllers'][$context_name] = $this->build_controller($module_settings, $context_name);
 
             // view files
             if ($public_context === TRUE)
             {
                 // only build this view in the Public context
-                $content['views'][$context_name]['index'] = $this->build_view($field_total, $module_name, $context_name, 'index_front', 'Index', $primary_key_field, $table_as_field_prefix);
+                $content['views'][$context_name]['index'] = $this->build_view($module_settings, $context_name, 'index_front', 'Index');
             }
             else {
                 // only build these views for the Admin contexts
-                foreach($action_names as $key => $action_name) {
+                foreach($module_settings['action_names'] as $key => $action_name) {
                     if ($action_name != 'delete' ) {
-                        $content['views'][$context_name][$action_name] = $this->build_view($field_total, $module_name, $context_name, $action_name, $this->options['form_action_options'][$action_name], $primary_key_field);
+                        $content['views'][$context_name][$action_name] = $this->build_view($module_settings, $context_name, $action_name, $this->options['form_action_options'][$action_name]);
                     }
                 }
-                $content['views'][$context_name]['js'] = $this->build_view($field_total, $module_name, $context_name, 'js', $this->options['form_action_options'][$action_name], $primary_key_field);
-                $content['views'][$context_name]['_sub_nav'] = $this->build_view($field_total, $module_name, $context_name, 'sub_nav', $this->options['form_action_options'][$action_name], $primary_key_field);
+                $content['views'][$context_name]['js'] = $this->build_view($module_settings, $context_name, 'js', $this->options['form_action_options'][$action_name]);
+                $content['views'][$context_name]['_sub_nav'] = $this->build_view($module_settings, $context_name, 'sub_nav', $this->options['form_action_options'][$action_name]);
             }
         }
 
         // build the config file
-        $content['config'] = $this->build_config($module_name, $module_description);
+        $content['config'] = $this->build_config($module_settings);
 
         // build the lang file
-        $content['lang'] = $this->build_lang($module_name, $module_file_name);
+        $content['lang'] = $this->build_lang($module_settings);
 
         // build the permissions migration file
-        $content['acl_migration'] = $this->build_acl_sql($field_total, $module_name, $contexts, $action_names, $role_id, $table_name);
+        $content['acl_migration'] = $this->build_acl_sql($module_settings);
 
-        if ($field_total && $db_required != '') {
+        if ($module_settings['field_total'] && $module_settings['db_required'] != '') {
            // build the model file
-            $content['model'] = $this->build_model($field_total, $module_file_name, $action_names, $primary_key_field, $table_name);
+            $content['model'] = $this->build_model($module_settings);
 
             // db based files - migrations
-            if( $db_required == 'new') {
-                $content['db_migration'] =  $this->build_db_sql($field_total, $module_name, $primary_key_field, $table_name, $table_as_field_prefix);
+            if( $module_settings['db_required'] == 'new') {
+                $content['db_migration'] =  $this->build_db_sql($module_settings);
             }
         }
 
-        if ($content['acl_migration'] == FALSE || $content['config'] == FALSE || $content['controllers'] == FALSE || $content['views'] == FALSE || ($db_required != '' && (($content['model'] == FALSE && $content['db_migration'] == FALSE) ) ) )
+        if ($content['acl_migration'] == FALSE || $content['config'] == FALSE || $content['controllers'] == FALSE || $content['views'] == FALSE || ($module_settings['db_required'] != '' && (($content['model'] == FALSE && $content['db_migration'] == FALSE) ) ) )
         {
             // something went wrong when trying to build the form
             log_message('error', "The form was not built. There was an error with one of the build_() functions. Probably caused by total fields variable not being set");
@@ -196,7 +196,7 @@ class Modulebuilder
         // we need something unique to build the file directory. unix timestamp seemed like a good choice
         $id = '';
         // write to files to disk
-        $write_status = $this->_write_files($module_file_name, $content, $table_name, $db_required);
+        $write_status = $this->_write_files($module_settings['module_file_name'], $content, $module_settings['table_name'], $module_settings['db_required']);
 
         $data['error'] = FALSE;
         if( $write_status['status'] ) {
@@ -216,7 +216,7 @@ class Modulebuilder
         $data['lang'] = $content['lang'];
         $data['model'] = $content['model'];
         $data['views'] = $content['views'];
-        $data['db_table'] = $table_name;
+        $data['db_table'] = $module_settings['table_name'];
 
         return $data;
 
@@ -391,24 +391,20 @@ class Modulebuilder
      *
      * @return mixed FALSE on error/A string containing the content of the view file
      */
-    private function build_view($field_total, $module_name, $controller_name, $action_name, $action_label, $primary_key_field)
+    private function build_view($module_settings, $controller_name, $action_name, $action_label)
     {
-        if ($field_total == NULL)
+        if ($module_settings['field_total'] == NULL)
         {
               return FALSE;
         }
 
-        $data['field_total'] = $field_total;
-        $data['module_name'] = $module_name;
-        $data['module_name_lower'] = preg_replace("/[ -]/", "_", strtolower($module_name));
-        $data['controller_name'] = $controller_name;
-        $data['action_name'] = $action_name;
-        $data['primary_key_field'] = $primary_key_field;
-        $data['action_label'] = $action_label;
-        $data['textarea_editor'] = $this->CI->input->post('textarea_editor');
-        $data['use_soft_deletes'] = $this->CI->input->post('use_soft_deletes');
-        $data['use_created'] = $this->CI->input->post('use_created');
-        $data['use_modified'] = $this->CI->input->post('use_modified');
+        $module_settings['controller_name'] = $controller_name;
+        $module_settings['action_name'] = $action_name;
+        $module_settings['action_label'] = $action_label;
+        $module_settings['textarea_editor'] = $this->CI->input->post('textarea_editor');
+        $module_settings['use_soft_deletes'] = $this->CI->input->post('use_soft_deletes');
+        $module_settings['use_created'] = $this->CI->input->post('use_created');
+        $module_settings['use_modified'] = $this->CI->input->post('use_modified');
 
         $id_val = '';
         if($action_name != 'insert' && $action_name != 'add') {
@@ -440,7 +436,7 @@ class Modulebuilder
                 break;
         }
 
-        $view = $this->CI->load->view('files/view_'.$view_name, $data, TRUE);
+        $view = $this->CI->load->view('files/view_'.$view_name, $module_settings, TRUE);
 
         return $view;
 
@@ -465,25 +461,16 @@ class Modulebuilder
      *
      * @return mixed FALSE on error/A string containing the content of the controller file
      */
-    private function build_controller($field_total, $module_name, $controller_name, $action_names, $primary_key_field, $db_required, $form_error_delimiters, $table_name, $table_as_field_prefix)
+    private function build_controller($module_settings, $controller_name)
     {
-        if (is_null($field_total))
+        if (is_null($module_settings['field_total']))
         {
             return FALSE;
         }
 
-        $data['field_total'] = $field_total;
-        $data['module_name'] = $module_name;
-        $data['table_name'] = $table_name;
-        $data['module_name_lower'] = preg_replace("/[ -]/", "_", strtolower($module_name));
-        $data['controller_name'] = $controller_name;
-        $data['action_names'] = $action_names;
-        $data['primary_key_field'] = $primary_key_field;
-        $data['db_required'] = $db_required;
-        $data['form_error_delimiters'] = $form_error_delimiters;
-        $data['textarea_editor'] = $this->CI->input->post('textarea_editor');
-        $data['table_as_field_prefix'] = $table_as_field_prefix;
-        $controller = $this->CI->load->view('files/controller', $data, TRUE);
+        $module_settings['controller_name'] = $controller_name;
+        $module_settings['textarea_editor'] = $this->CI->input->post('textarea_editor');
+        $controller = $this->CI->load->view('files/controller', $module_settings, TRUE);
         return $controller;
 
     }//end build_controller()
@@ -503,20 +490,16 @@ class Modulebuilder
      *
      * @return mixed FALSE on error/A string containing the content of the model file
      */
-    private function build_model($field_total, $module_file_name, $action_names, $primary_key_field, $table_name)
+    private function build_model($module_settings)
     {
-        if ($field_total == NULL)
+        if ($module_settings['field_total'] == NULL)
         {
             return FALSE;
         }
 
-        $data['field_total']        = $field_total;
-        $data['controller_name']    = $module_file_name;
-        $data['action_names']       = $action_names;
-        $data['primary_key_field']  = $primary_key_field;
-        $data['table_name']         = $table_name;
+        $module_settings['controller_name']    = $module_settings['module_file_name'];
 
-        $model = $this->CI->load->view('files/model', $data, TRUE);
+        $model = $this->CI->load->view('files/model', $module_settings, TRUE);
 
         return $model;
 
@@ -535,11 +518,9 @@ class Modulebuilder
      *
      * @return string A string containing the content of the language file
      */
-    private function build_lang($module_name, $module_name_lower)
+    private function build_lang($module_settings)
     {
-        $data['module_name'] = $module_name;
-        $data['module_name_lower'] = $module_name_lower;
-        $lang = $this->CI->load->view('files/lang', $data, TRUE);
+        $lang = $this->CI->load->view('files/lang', $module_settings, TRUE);
 
         return $lang;
 
@@ -558,16 +539,14 @@ class Modulebuilder
      *
      * @return string A string containing the content of the config file
      */
-    private function build_config($module_name, $module_description)
+    private function build_config($module_settings)
     {
-        $data['module_name'] = $module_name;
-        $data['module_description'] = $module_description;
 
         // Load our current logged in user so we can access it anywhere.
         $current_user = $this->CI->user_model->find($this->CI->auth->user_id());
 
-        $data['username'] = $current_user->username;
-        $lang = $this->CI->load->view('files/config', $data, TRUE);
+        $module_settings['username'] = $current_user->username;
+        $lang = $this->CI->load->view('files/config', $module_settings, TRUE);
 
         return $lang;
 
@@ -588,16 +567,10 @@ class Modulebuilder
      *
      * @return string A string containing the content of the permission migration file
      */
-    private function build_acl_sql($field_total, $module_name, $contexts, $action_names, $role_id)
+    private function build_acl_sql($module_settings)
     {
-        $data['field_total'] = $field_total;
-        $data['module_name'] = preg_replace("/[ -]/", "_", $module_name);
-        $data['module_name_lower'] = preg_replace("/[ -]/", "_", strtolower($module_name));
-        $data['contexts'] = $contexts;
-        $data['action_names'] = $action_names;
-        $data['role_id'] = $role_id;
 
-        $acl_migration = $this->CI->load->view('files/acl_migration', $data, TRUE);
+        $acl_migration = $this->CI->load->view('files/acl_migration', $module_settings, TRUE);
 
         return $acl_migration;
 
@@ -618,21 +591,15 @@ class Modulebuilder
      *
      * @return string A string containing the content of the database migration file
      */
-    private function build_db_sql($field_total, $module_name, $primary_key_field, $table_name, $table_as_field_prefix)
+    private function build_db_sql($module_settings)
     {
-        if ($field_total == NULL)
+        if ($module_settings['field_total'] == NULL)
         {
             return FALSE;
         }
 
-        $data['field_total'] = $field_total;
-        $data['module_name'] = preg_replace("/[ -]/", "_", $module_name);
-        $data['module_name_lower'] = preg_replace("/[ -]/", "_", strtolower($module_name));
-        $data['primary_key_field'] = $primary_key_field;
-        $data['table_name']         = $table_name;
-        $data['table_as_field_prefix']   = $table_as_field_prefix;
 
-        $db_migration = $this->CI->load->view('files/db_migration', $data, TRUE);
+        $db_migration = $this->CI->load->view('files/db_migration', $module_settings, TRUE);
 
         return $db_migration;
 

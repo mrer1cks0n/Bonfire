@@ -539,36 +539,33 @@ class Developer extends Admin_Controller {
      */
     private function build_module($field_total=0)
     {
-        $module_name        = $this->input->post('module_name');
-        $table_name         = strtolower(preg_replace("/[ -]/", "_", $this->input->post('table_name')));
-        $contexts           = $this->input->post('contexts');
-        $action_names       = $this->input->post('form_action');
-        $module_description = $this->input->post('module_description');
-        $role_id            = $this->input->post('role_id');
+        $this->load->helper('inflector');
 
-        $db_required = $this->input->post('module_db');
+        $module_settings = array();
+        $module_settings['field_total']             = $field_total;
+        $module_settings['module_name']             = $this->input->post('module_name');
+        $module_settings['module_name_lower']       = strtolower(preg_replace("/[ -]/", "_", $module_settings['module_name']));
+        $module_settings['module_name_singular']    = singular($module_settings['module_name']);
+        $module_settings['module_name_lower_singular'] = singular($module_settings['module_name_lower']);
+        $module_settings['table_name']             = strtolower(preg_replace("/[ -]/", "_", $this->input->post('table_name')));
+        $module_settings['contexts']                = $this->input->post('contexts');
+        $module_settings['action_names']            = $this->input->post('form_action');
+        $module_settings['module_description']      = $this->input->post('module_description');
+        $module_settings['role_id']                 = $this->input->post('role_id');
+        $module_settings['db_required']             = $this->input->post('module_db');
+        $module_settings['table_as_field_prefix']   = (bool) $this->input->post('table_as_field_prefix');
+        $module_settings['primary_key_field']       = ($this->input->post('primary_key_field') == '') ? $this->options['primary_key_field'] : $this->input->post('primary_key_field');
+        $form_error_delimiters = $this->input->post('form_error_delimiters');
+        $module_settings['form_error_delimiters']   = (!is_array($form_error_delimiters) OR count($form_error_delimiters) != 2) ? $form_error_delimiters = $this->options['form_error_delimiters'] : $form_error_delimiters;
 
-		$table_as_field_prefix = (bool) $this->input->post('table_as_field_prefix');
-
-        $primary_key_field = $this->input->post('primary_key_field');
-        if( $primary_key_field == '')
-        {
-            $primary_key_field = $this->options['primary_key_field'];
-        }
-
-        $form_error_delimiters = explode(',', $this->input->post('form_error_delimiters'));
-        if( !is_array($form_error_delimiters) OR count($form_error_delimiters) != 2)
-        {
-            $form_error_delimiters = $this->options['$form_error_delimiters'];
-        }
-
-		$file_data = $this->modulebuilder->build_files($field_total, $module_name, $contexts, $action_names, $primary_key_field, $db_required, $form_error_delimiters, $module_description, $role_id, $table_name, $table_as_field_prefix);
+		//$file_data = $this->modulebuilder->build_files($field_total, $module_name, $contexts, $action_names, $primary_key_field, $db_required, $form_error_delimiters, $module_description, $role_id, $table_name, $table_as_field_prefix);
+        $file_data = $this->modulebuilder->build_files($module_settings);
 
         // make the variables available to the view file
-        $data['module_name']        = $module_name;
-        $data['module_name_lower']  = strtolower(preg_replace("/[ -]/", "_", $module_name));
-        $data['controller_name']    = preg_replace("/[ -]/", "_", $module_name);
-        $data['table_name']         = empty($table_name) ? strtolower(preg_replace("/[ -]/", "_", $module_name)) : $table_name;
+        $data['module_name']        = $module_settings['module_name'];
+        $data['module_name_lower']  = $module_settings['module_name_lower'];
+        $data['controller_name']    = preg_replace("/[ -]/", "_", $module_settings['module_name']);
+        $data['table_name']         = empty($module_settings['table_name']) ? strtolower(preg_replace("/[ -]/", "_",$module_settings['module_name'])) : $module_settings['table_name'];
         $data = $data + $file_data;
 
         // Allow for the Old method - update the schema first to prevent errors in duplicate column names due to Migrations.php caching db columns
