@@ -564,6 +564,7 @@ class Developer extends Admin_Controller {
         // make the variables available to the view file
         $data['module_name']        = $module_settings['module_name'];
         $data['module_name_lower']  = $module_settings['module_name_lower'];
+        $data['module_name_lower_singular'] = $module_settings['module_name_lower_singular'];
         $data['controller_name']    = preg_replace("/[ -]/", "_", $module_settings['module_name']);
         $data['table_name']         = empty($module_settings['table_name']) ? strtolower(preg_replace("/[ -]/", "_",$module_settings['module_name'])) : $module_settings['table_name'];
         $data = $data + $file_data;

@@ -46,7 +46,7 @@ foreach($controllers as $controller_name => $val) {
 
 <?php if($lang): ?>
 <h4><?php echo lang('mb_out_lang'); ?></h4>
-<p><?php echo sprintf(lang('mb_out_lang_path'),$module_name_lower); ?></p>
+<p><?php echo sprintf(lang('mb_out_lang_path'),$module_name_lower_singular); ?></p>
 <?php endif; ?>
 
 <?php if($db_migration): ?>
@@ -56,7 +56,7 @@ foreach($controllers as $controller_name => $val) {
 
 <?php if($model): ?>
 <h4><?php echo lang('mb_out_model'); ?></h4>
-<p><?php echo sprintf(lang('mb_out_model_path'),$module_name_lower); ?></p>
+<p><?php echo sprintf(lang('mb_out_model_path'),$module_name_lower_singular); ?></p>
 <?php endif; ?>
 
 <h4><?php echo lang('mb_out_view'); ?></h4>

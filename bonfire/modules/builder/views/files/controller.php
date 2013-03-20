@@ -37,7 +37,7 @@ $mb_constructor = "
 		{restrict}";
 if ($db_required != '') {
 	$mb_constructor .= "
-		\$this->load->model('".$module_name_lower."_model', null, true);";
+		\$this->load->model('".$module_name_lower_singular."_model', null, true);";
 }
 
 $mb_constructor .= "
@@ -82,7 +82,7 @@ if ($db_required != '') {
 				\$result = FALSE;
 				foreach (\$checked as \$pid)
 				{
-					\$result = \$this->".$module_name_lower."_model->delete(\$pid);
+					\$result = \$this->".$module_name_lower_singular."_model->delete(\$pid);
 				}
 
 				if (\$result)
@@ -91,12 +91,12 @@ if ($db_required != '') {
 				}
 				else
 				{
-					Template::set_message(lang('".$module_name_lower."_delete_failure') . \$this->".$module_name_lower."_model->error, 'error');
+					Template::set_message(lang('".$module_name_lower."_delete_failure') . \$this->".$module_name_lower_singular."_model->error, 'error');
 				}
 			}
 		}
 
-		\$records = \$this->".$module_name_lower."_model->find_all();
+		\$records = \$this->".$module_name_lower_singular."_model->find_all();
 
 		Template::set('records', \$records);";
 }
@@ -124,7 +124,7 @@ $mb_index_front = "
 ";
 if ($db_required != '') {
 	$mb_index_front .= "
-		\$records = \$this->".$module_name_lower."_model->find_all();
+		\$records = \$this->".$module_name_lower_singular."_model->find_all();
 
 		Template::set('records', \$records);";
 }
@@ -144,7 +144,7 @@ $mb_create = "
 	/*
 		Method: create()
 
-		Creates a ".$module_name." object.
+		Creates a ".$module_name_singular." object.
 	*/
 	public function create()
 	{
@@ -154,7 +154,7 @@ if ($db_required != '') {
 	$mb_create .= "
 		if (\$this->input->post('save'))
 		{
-			if (\$insert_id = \$this->save_".$module_name_lower."())
+			if (\$insert_id = \$this->save_".$module_name_lower_singular."())
 			{
 				// Log the activity
 				\$this->activity_model->log_activity(\$this->current_user->id, lang('".$module_name_lower."_act_create_record').': ' . \$insert_id . ' : ' . \$this->input->ip_address(), '".$module_name_lower."');
@@ -164,7 +164,7 @@ if ($db_required != '') {
 			}
 			else
 			{
-				Template::set_message(lang('".$module_name_lower."_create_failure') . \$this->".$module_name_lower."_model->error, 'error');
+				Template::set_message(lang('".$module_name_lower."_create_failure') . \$this->".$module_name_lower_singular."_model->error, 'error');
 			}
 		}";
 }
@@ -187,7 +187,7 @@ $mb_edit = "
 	/*
 		Method: edit()
 
-		Allows editing of ".$module_name." data.
+		Allows editing of ".$module_name_singular." data.
 	*/
 	public function edit()
 	{
@@ -205,7 +205,7 @@ if ($db_required != '') {
 		{
 			\$this->auth->restrict('{edit_permission}');
 
-			if (\$this->save_".$module_name_lower."('update', \$id))
+			if (\$this->save_".$module_name_lower_singular."('update', \$id))
 			{
 				// Log the activity
 				\$this->activity_model->log_activity(\$this->current_user->id, lang('".$module_name_lower."_act_edit_record').': ' . \$id . ' : ' . \$this->input->ip_address(), '".$module_name_lower."');
@@ -214,7 +214,7 @@ if ($db_required != '') {
 			}
 			else
 			{
-				Template::set_message(lang('".$module_name_lower."_edit_failure') . \$this->".$module_name_lower."_model->error, 'error');
+				Template::set_message(lang('".$module_name_lower."_edit_failure') . \$this->".$module_name_lower_singular."_model->error, 'error');
 			}
 		}";
 
@@ -224,7 +224,7 @@ if ($db_required != '') {
 		{
 			\$this->auth->restrict('{delete_permission}');
 
-			if (\$this->".$module_name_lower."_model->delete(\$id))
+			if (\$this->".$module_name_lower_singular."_model->delete(\$id))
 			{
 				// Log the activity
 				\$this->activity_model->log_activity(\$this->current_user->id, lang('".$module_name_lower."_act_delete_record').': ' . \$id . ' : ' . \$this->input->ip_address(), '".$module_name_lower."');
@@ -234,13 +234,13 @@ if ($db_required != '') {
 				redirect(SITE_AREA .'/".$controller_name."/".$module_name_lower."');
 			} else
 			{
-				Template::set_message(lang('".$module_name_lower."_delete_failure') . \$this->".$module_name_lower."_model->error, 'error');
+				Template::set_message(lang('".$module_name_lower."_delete_failure') . \$this->".$module_name_lower_singular."_model->error, 'error');
 			}
 		}";
 	}
 
 	$mb_edit .= "
-		Template::set('".$module_name_lower."', \$this->".$module_name_lower."_model->find(\$id));";
+		Template::set('".$module_name_lower."', \$this->".$module_name_lower_singular."_model->find(\$id));";
 }
 
 $mb_edit .= "
@@ -263,7 +263,7 @@ $mb_save =<<<END
 	//--------------------------------------------------------------------
 
 	/*
-		Method: save_{$module_name_lower}()
+		Method: save_{$module_name_lower_singular}()
 
 		Does the actual validation and saving of form data.
 
@@ -275,7 +275,7 @@ $mb_save =<<<END
 			An INT id for successful inserts. If updating, returns TRUE on success.
 			Otherwise, returns FALSE.
 	*/
-	private function save_{$module_name_lower}(\$type='insert', \$id=0)
+	private function save_{$module_name_lower_singular}(\$type='insert', \$id=0)
 	{
 		if (\$type == 'update') {
 			\$_POST['{$primary_key_field}'] = \$id;
@@ -293,7 +293,7 @@ $mb_save =<<<END
 
 		if (\$type == 'insert')
 		{
-			\$id = \$this->{$module_name_lower}_model->insert(\$data);
+			\$id = \$this->{$module_name_lower_singular}_model->insert(\$data);
 
 			if (is_numeric(\$id))
 			{
@@ -305,7 +305,7 @@ $mb_save =<<<END
 		}
 		else if (\$type == 'update')
 		{
-			\$return = \$this->{$module_name_lower}_model->update(\$id, \$data);
+			\$return = \$this->{$module_name_lower_singular}_model->update(\$id, \$data);
 		}
 
 		return \$return;

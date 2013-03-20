@@ -139,6 +139,7 @@ class Modulebuilder
 
         // build the files
         $module_settings['module_file_name'] = strtolower(preg_replace("/[ -]/", "_", $module_settings['module_name']));
+        $module_settings['model_file_name'] = strtolower(preg_replace("/[ -]/", "_", $module_settings['module_name_singular']));
         foreach( $module_settings['contexts'] as $key => $context_name) {
             // controller
             $public_context = FALSE;
@@ -196,7 +197,7 @@ class Modulebuilder
         // we need something unique to build the file directory. unix timestamp seemed like a good choice
         $id = '';
         // write to files to disk
-        $write_status = $this->_write_files($module_settings['module_file_name'], $content, $module_settings['table_name'], $module_settings['db_required']);
+        $write_status = $this->_write_files($module_settings['module_file_name'], $content, $module_settings['table_name'], $module_settings['db_required'], $module_settings['model_file_name']);
 
         $data['error'] = FALSE;
         if( $write_status['status'] ) {
@@ -240,9 +241,8 @@ class Modulebuilder
      *
      * @return array An array containing the status and error message
      */
-    private function _write_files($module_name, $content, $table_name, $db_required)
+    private function _write_files($module_name, $content, $table_name, $db_required, $model_file_name = '')
     {
-
         $ret_val = array('status' => TRUE);
         $error_msg = 'Module Builder:';
 
@@ -340,7 +340,7 @@ class Modulebuilder
                                 $path = $this->options['output_path']."{$module_name}/migrations";
                                 break;
                             case 'model':
-                                $file_name .= "_model";
+                                $file_name = $model_file_name."_model";
                                 break;
                             case 'lang':
                                 $file_name .= "_lang";
@@ -497,7 +497,7 @@ class Modulebuilder
             return FALSE;
         }
 
-        $module_settings['controller_name']    = $module_settings['module_file_name'];
+        $module_settings['controller_name']    = strtolower(preg_replace("/[ -]/", "_", $module_settings['module_name_singular']));
 
         $model = $this->CI->load->view('files/model', $module_settings, TRUE);
 
