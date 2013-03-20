@@ -27,6 +27,8 @@ $lang[\''.$module_name_lower.'_cancel\']			= \'Cancel\';
 $lang[\''.$module_name_lower.'_delete_record\']			= \'Delete this '.$module_name_singular.'\';
 $lang[\''.$module_name_lower.'_delete_confirm\']			= \'Are you sure you want to delete this '.$module_name_lower_singular.'?\';
 $lang[\''.$module_name_lower.'_edit_heading\']			= \'Edit '.$module_name_singular.'\';
+$lang[\''.$module_name_lower.'_action_edit\']               = \'Save '.$module_name_singular.'\';
+$lang[\''.$module_name_lower.'_action_create\']         = \'Create '.$module_name_singular.'\';
 
 // Activities
 $lang[\''.$module_name_lower.'_act_create_record\']			= \'Created record with ID\';

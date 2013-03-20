@@ -230,7 +230,7 @@ $view .= PHP_EOL . '
 
         <div class="form-actions">
             <br/>
-            <input type="submit" name="save" class="btn btn-primary" value="'.$action_label.' '.$module_name_singular.'"'.$on_click.' />
+            <input type="submit" name="save" class="btn btn-primary" value="<?php echo lang(\''.$module_name_lower.'_action_'.$action_name.'\'); ?>"'.$on_click.' />
             or <?php echo anchor(SITE_AREA .\'/'.$controller_name.'/'.$module_name_lower.'\', lang(\''.$module_name_lower.'_cancel\'), \'class="btn btn-warning"\'); ?>
             ' . $delete . '
         </div>
