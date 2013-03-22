@@ -156,11 +156,18 @@ class Modulebuilder
                 $content['views'][$context_name]['index'] = $this->build_view($module_settings, $context_name, 'index_front', 'Index');
             }
             else {
+                $dry_form = false;
                 // only build these views for the Admin contexts
                 foreach($module_settings['action_names'] as $key => $action_name) {
                     if ($action_name != 'delete' ) {
                         $content['views'][$context_name][$action_name] = $this->build_view($module_settings, $context_name, $action_name, $this->options['form_action_options'][$action_name]);
+                        if ($action_name == "create" || $action_name == "edit") {
+                            $dry_form = true;
+                        }
                     }
+                }
+                if ($dry_form) { // if create or edit view used, create a _form partial view
+                    $content['views'][$context_name]["_form"] = $this->build_view($module_settings, $context_name, "_form", "");
                 }
                 $content['views'][$context_name]['js'] = $this->build_view($module_settings, $context_name, 'js', $this->options['form_action_options'][$action_name]);
                 $content['views'][$context_name]['_sub_nav'] = $this->build_view($module_settings, $context_name, 'sub_nav', $this->options['form_action_options'][$action_name]);
@@ -430,6 +437,9 @@ class Modulebuilder
                 break;
             case 'sub_nav':
                 $view_name = 'sub_nav';
+                break;
+            case '_form':
+                $view_name = 'form';
                 break;
             default:
                 $view_name = 'default';

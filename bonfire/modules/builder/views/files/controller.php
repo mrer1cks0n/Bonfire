@@ -149,6 +149,7 @@ $mb_create = "
 	public function create()
 	{
 		\$this->auth->restrict('{create_permission}');
+		
 ";
 if ($db_required != '') {
 	$mb_create .= "
@@ -198,6 +199,7 @@ $mb_edit = "
 			Template::set_message(lang('".$module_name_lower."_invalid_id'), 'error');
 			redirect(SITE_AREA .'/".$controller_name."/".$module_name_lower."');
 		}
+		
 ";
 if ($db_required != '') {
 	$mb_edit .= "
@@ -481,7 +483,12 @@ if ($controller_name != $module_name_lower)
 		{
 				$field_name = set_value("view_field_name$counter");
 		}
-		$form_name = $module_name_lower . '_' . set_value("view_field_name$counter");
+		// Edit form breaks when not checking for $table_as_prefix_field
+	    if ($table_as_field_prefix) {
+	        $form_name  = $module_name_lower . '_' . set_value("view_field_name$counter");
+	    } else {
+	        $form_name  = set_value("view_field_name$counter");
+	    }
 		$rules .= '
 		$this->form_validation->set_rules(\''.$form_name.'\',\''.set_value("view_field_label$counter").'\',\'';
 
