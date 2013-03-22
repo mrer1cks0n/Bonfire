@@ -235,6 +235,10 @@ Toolbar Profile
 /*
 Toolbar Keys
  */
+#shortcuts {
+	margin-left:4px;
+}
+
 .toolbar-keys {
 	padding: 12px;
 	padding-bottom: 0;
