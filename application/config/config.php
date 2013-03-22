@@ -3,9 +3,7 @@
 /* define the module locations and offset */
 $config['modules_locations'] = array(
 	realpath(APPPATH .'../bonfire/modules') .'/' => '../../bonfire/modules/',
-	realpath(APPPATH) . '/modules/' => '../../application/modules/'
 );
-
 /*
 |--------------------------------------------------------------------------
 | Base Site URL

@@ -150,7 +150,6 @@ class CI_Router {
 		{
 			return $this->_validate_request($segments);
 		}
-
 		// Fetch the complete URI string
 		$this->uri->_fetch_uri_string();
 
@@ -159,7 +158,7 @@ class CI_Router {
 		{
 			return $this->_set_default_controller();
 		}
-
+		
 		// Do we need to remove the URL suffix?
 		$this->uri->_remove_url_suffix();
 
@@ -170,7 +169,7 @@ class CI_Router {
 		$this->_parse_routes();
 
 		// Re-index the segment array so that it starts with 1 rather than 0
-		$this->uri->_reindex_segments();
+		$this->uri->_reindex_segments(); 
 	}
 
 	// --------------------------------------------------------------------
@@ -244,7 +243,6 @@ class CI_Router {
 			// index method is being used.
 			$segments[1] = 'index';
 		}
-
 		// Update our "routed" segment array to contain the segments.
 		// Note: If there is no custom routing, this array will be
 		// identical to $this->uri->segments
@@ -385,7 +383,7 @@ class CI_Router {
 				{
 					$val = preg_replace('#^'.$key.'$#', $val, $uri);
 				}
-
+				//print_r($val);
 				return $this->_set_request(explode('/', $val));
 			}
 		}

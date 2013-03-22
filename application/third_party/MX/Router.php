@@ -46,7 +46,6 @@ class MX_Router extends CI_Router
 	public function _validate_request($segments) {
 
 		if (count($segments) == 0) return $segments;
-		
 		/* locate module controller */
 		if ($located = $this->locate($segments)) return $located;
 		
@@ -66,18 +65,43 @@ class MX_Router extends CI_Router
 		$this->module = '';
 		$this->directory = '';
 		$ext = $this->config->item('controller_suffix').EXT;
-		
+
 		/* use module route if available */
 		if (isset($segments[0]) AND $routes = Modules::parse_routes($segments[0], implode('/', $segments))) {
 			$segments = $routes;
 		}
-	
-		/* get the segments array elements */
-		list($module, $directory, $controller) = array_pad($segments, 3, NULL);
+
+		$module_index = 1;
+		for ($i = count($segments)-1; $i>0; $i--) {
+			$possible_segments = $segments[0];
+			for ($j = 2; $j <= $i; $j++) {
+				$possible_segments .= "/".$segments[$j];
+			}
+
+			if (Modules::submodule_exists($possible_segments)) {
+				$module_index = $i;
+				break;
+			}
+		}
+
+		if ($module_index != 1) {
+			$this->module = $segments[$module_index];
+			$segments[0] = $this->module;
+			$segments = array_merge(array_slice($segments, 0, 1), array_slice($segments, 1, $module_index-1));
+			if (count($segments) == 2) {
+				$segments[] = "index";
+			}
+			$module = $this->module;
+			$directory = $this->module;
+			$controller = $this->module;
+		} else {
+			/* get the segments array elements */
+			list($module, $directory, $controller) = array_pad($segments, 3, NULL);
+		}
 
 		/* check modules */
 		foreach (Modules::$locations as $location => $offset) {
-		
+			//echo $location.$module.'/controllers/'."\n";
 			/* module exists? */
 			if (is_dir($source = $location.$module.'/controllers/')) {
 				
@@ -134,4 +158,5 @@ class MX_Router extends CI_Router
 	public function set_class($class) {
 		$this->class = $class.$this->config->item('controller_suffix');
 	}
+
 }

@@ -8,6 +8,7 @@ global $CFG;
 is_array(Modules::$locations = $CFG->item('modules_locations')) OR Modules::$locations = array(
 	APPPATH.'modules/' => '../modules/',
 );
+Modules::locate_submodules(realpath(APPPATH) . '/modules/');
 
 /* PHP5 spl_autoload */
 spl_autoload_register('Modules::autoload');
@@ -217,5 +218,35 @@ class Modules
 				return explode('/', $module.'/'.$val);
 			}
 		}
+	}
+
+	public static function locate_submodules($path) {
+		$module_path = new RecursiveDirectoryIterator($path);
+		foreach ($module_path as $filename) {
+		    if (is_dir($filename."/modules")) {
+		    	self::$locations[$filename."/modules/"] = self::get_module_offset($filename."/modules/");
+		    	self::locate_submodules($filename."/modules/");
+		    }
+		}
+		self::$locations[realpath(APPPATH) . '/modules/'] = '../../application/modules/';
+	}
+
+	public static function get_module_offset($path) {
+		$relative_path = "";
+		$position = strpos($path, "/application/");
+		if ($position !== FALSE) {
+			$relative_path = "../..".substr($path, $position);
+		}
+		 return $relative_path;
+	}
+
+	public static function submodule_exists($module_uri) {
+		$module_uri_array = explode("/", $module_uri);
+		$module_path = implode("/modules/", $module_uri_array);
+		$module_path = realpath(APPPATH) . '/modules/'.$module_path;
+		if (is_dir($module_path)) {
+			return true;
+		}
+		return false;
 	}
 }
