@@ -238,7 +238,7 @@ class Developer extends Admin_Controller {
             $this->build_module($this->field_total);
 
             // Log the activity
-           $this->activity_model->log_activity((integer) $this->current_user->id, lang('mb_act_create').': ' . $this->input->post('module_name') . ' : ' . $this->input->ip_address(), 'modulebuilder');
+           $this->activity_model->log_activity((integer) $this->current_user->id, 'create', 'modulebuilder', strtolower($this->input->post('module_name')));
 
             Template::set_view('developer/output');
         }//end if

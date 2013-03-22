@@ -42,7 +42,9 @@
 					<th><?php echo lang('activity_user'); ?></th>
 					<th><?php echo lang('activity_activity'); ?></th>
 					<th><?php echo lang('activity_module'); ?></th>
+					<th><?php echo lang('activity_module_id'); ?></th>
 					<th><?php echo lang('activity_when'); ?></th>
+					<th><?php echo lang('activity_module_from'); ?></th>
 				</tr>
 			</thead>
 
@@ -54,7 +56,9 @@
 					<td><i class="icon-user">&nbsp;</i>&nbsp;<?php e($activity->username); ?></td>
 					<td><?php echo $activity->activity; ?></td>
 					<td><?php echo $activity->module; ?></td>
+					<td><?php echo $activity->module_id; ?></td>
 					<td><?php echo date('M j, Y g:i A', strtotime($activity->created)); ?></td>
+					<td><?php echo $activity->ip_address; ?></td>
 				</tr>
 				<?php endforeach; ?>
 			</tbody>

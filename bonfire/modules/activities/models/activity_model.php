@@ -132,7 +132,7 @@ class Activity_model extends BF_Model
 	 *
 	 * @return bool An int with the ID of the new object, or FALSE on failure.
 	 */
-	public function log_activity($user_id=null, $activity='', $module='any')
+	public function log_activity($user_id=null, $activity='', $module='any', $module_id = 0)
 	{
 		if (empty($user_id) || !is_integer($user_id) || $user_id == 0 )
 		{
@@ -148,7 +148,9 @@ class Activity_model extends BF_Model
 		$data = array(
 			'user_id'	=> $user_id,
 			'activity'	=> $activity,
-			'module'	=> $module
+			'module'	=> $module,
+			'ip_address' => $_SERVER["REMOTE_ADDR"],
+			'module_id' => $module_id
 		);
 
 		return parent::insert($data);

@@ -435,7 +435,7 @@ class Reports extends Admin_Controller
 		// get the activities
 		$this->db->join('users', 'activities.user_id = users.id', 'left');
 		$this->db->order_by('activity_id','desc'); // most recent stuff on top
-		$this->db->select('activity, module, activities.created_on AS created, username');
+		$this->db->select('activity, module, module_id, activities.ip_address, activities.created_on AS created, username');
 		Template::set('activity_content', $this->activity_model->limit($limit, $offset)->find_all());
 
 		Template::set('select_options', $options);
