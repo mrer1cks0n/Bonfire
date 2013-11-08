@@ -85,6 +85,20 @@ class Activity_model extends BF_Model
 	 */
 	protected $set_modified = FALSE;
 
+	//---------------------------------------------------------------
+
+	/**
+	 * Setup the DB connection if it doesn't exist
+	 *
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+		$this->track_changes = FALSE;
+	}//end __construct()
+
+	//---------------------------------------------------------------
+
 	//--------------------------------------------------------------------
 
 	/**

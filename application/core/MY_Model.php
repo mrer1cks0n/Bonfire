@@ -169,6 +169,13 @@ class BF_Model extends CI_Model
 	protected $db_con = '';
 
 	/**
+	 * DB Connection details (string or array)
+	 *
+	 * @var mixed
+	 */
+	protected $track_changes = FALSE;
+
+	/**
 	 * Observer Arrays
 	 *
 	 * Each array can contain the names of callback functions within the extending model
@@ -186,6 +193,7 @@ class BF_Model extends CI_Model
 	protected $after_find		= array();
 	protected $before_delete	= array();
 	protected $after_delete		= array();
+	protected $changes			= array();
 
 	//---------------------------------------------------------------
 
@@ -196,7 +204,7 @@ class BF_Model extends CI_Model
 	public function __construct()
 	{
 		parent::__construct();
-
+		
 		// if there are specific DB connection settings used in a model
 		// load the database using those settings.
 		if (!empty($this->db_con)) {
@@ -215,6 +223,11 @@ class BF_Model extends CI_Model
 		// our observer system.
 		if ($this->set_created === true) array_unshift($this->before_insert, 'created_on');
 		if ($this->set_modified === true) array_unshift($this->before_update, 'modified_on');
+
+		if (get_called_class() != 'History_model') {
+			$this->load->model('history/History_model', 'history_model');
+			$this->track_changes = TRUE;
+		}
 
 	}//end __construct()
 
@@ -440,6 +453,10 @@ class BF_Model extends CI_Model
 		{
 			$id = $this->db->insert_id();
 
+			if ($this->track_changes) {
+				$this->history_model->_insert_log($this->table, $id);
+			}
+
 			$id = $this->trigger('after_insert', $id);
 			return $id;
 		}
@@ -544,8 +561,16 @@ class BF_Model extends CI_Model
 			$data[$this->modified_by_field] = $this->auth->user_id();
 		}
 
+		if ($this->track_changes) {
+			$this->history_model->_pre_update_log($this->table, $where);
+		}
+
 		if ($result = $this->db->update($this->table, $data, $where))
 		{
+			if ($this->track_changes) {
+				$this->history_model->_post_update_log($this->table);
+			}
+
 			$this->trigger('after_update', array($data, $result));
 			return TRUE;
 		}
@@ -657,6 +682,9 @@ class BF_Model extends CI_Model
 
 			if ($result)
 			{
+				if ($this->track_changes) {
+					$this->history_model->_delete_log($this->table, $id);
+				}
 				$this->trigger('after_delete', $result);
 				return TRUE;
 			}
@@ -1396,6 +1424,65 @@ class BF_Model extends CI_Model
 		}
 
 		log_message($level, $message);
+
+	}//end logit()
+
+	//--------------------------------------------------------------------
+
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Logs an error to the Console (if loaded) and to the log files.
+	 *
+	 * @param string $message The string to write to the logs.
+	 * @param string $level   The log level, as per CI log_message method.
+	 *
+	 * @access protected
+	 *
+	 * @return mixed
+	 */
+	protected function _pre_update_log($table, $where)
+	{
+		$records = $this->where($where)->find_all(1);
+		if ($records) {
+			foreach ($records as $record) {
+				$changes["old"][$record["id"]] = $record;
+			}
+		}
+
+	}//end logit()
+
+	//--------------------------------------------------------------------
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Logs an error to the Console (if loaded) and to the log files.
+	 *
+	 * @param string $message The string to write to the logs.
+	 * @param string $level   The log level, as per CI log_message method.
+	 *
+	 * @access protected
+	 *
+	 * @return mixed
+	 */
+	protected function _post_update_log()
+	{
+		if (isset($this->changes["old"]) && !empty($this->changes["old"]) && is_array($this->changes["old"])) {
+			foreach ($this->changes["old"] as $key => $value) {
+				$record = $this->find($key, 1);
+				$data = array(
+					"module" => $this->table,
+					"module_id" => $key,
+					"old" => json_encode(array_diff_assoc($this->changes["old"][$key], $record)),
+					"new" => json_encode(array_diff_assoc($record, $this->changes["old"][$key])),
+					"user_id"=>$this->auth->user_id(),
+					"ip_address" => $this->input->ip_address()
+					);
+				$this->db->insert("changes",$data);
+			}
+		}
 
 	}//end logit()
 
